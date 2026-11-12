@@ -307,36 +307,36 @@ with aba_atualizar:
 if col_chave not in df_novo_raw.columns:
     st.error(f"A coluna chave '{col_chave}' não existe no arquivo enviado.")
 else:
-chaves_antigas = set(normalizar_chave(df_raw[col_chave]).dropna())
-chaves_novas = set(normalizar_chave(df_novo_raw[col_chave]).dropna())
-insc_entradas = chaves_novas - chaves_antigas
-insc_excluidas = chaves_antigas - chaves_novas
-insc_mantidas = chaves_novas.intersection(chaves_antigas)
-st.subheader("⚖️ Balanço de Confronto (Antes de Substituir)")
-c1, c2, c3 = st.columns(3)
-c1.metric("🆕 Novas Inscrições", len(insc_entradas))
-c2.metric("❌ Inscrições Excluídas", len(insc_excluidas))
-c3.metric("🔁 Inscrições Mantidas", len(insc_mantidas))
-if st.button("✅ Confirmar Confronto e Atualizar Base Oficial"):
-with st.spinner("Arquivando histórico e atualizando base oficial..."):
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-caminho_backup = os.path.join(pasta_historico, f"backup_base_{timestamp}.parquet")
-shutil.copy2(caminho_base_oficial, caminho_backup)
-df_novo_raw["DATA_CARGA"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-df_novo_raw.to_parquet(caminho_base_oficial, index=False)
-st.success("Base atualizada com sucesso! Backup salvo na pasta histórico.")
-st.rerun()
-else:
-st.info("🔌 Configuração de Conexão PostgreSQL + Proxy (Preparado para Fase 4)")
-col_db1, col_db2 = st.columns(2)
-with col_db1:
-st.text_input("Host / URL:", value="lpostpro27", disabled=True)
-st.text_input("Porta / Banco:", value="5000 / smf", disabled=True)
-st.text_input("Usuário Banco:", placeholder="Digite seu usuário do PostgreSQL")
-st.text_input("Senha Banco:", type="password")
-with col_db2:
-st.text_input("Proxy Corporativo (Host:Porta):", placeholder="ex: procempa.com.br:3128")
-st.text_input("Usuário Proxy:", placeholder="Usuário da rede")
-st.text_input("Senha Proxy:", type="password")
-st.text_area("Query SQL de Extração:", value="SELECT * FROM sua_tabela_imobiliaria LIMIT 100;")
-st.button("⚡ Testar Conexão SQL (Ativaremos na Fase 4)", disabled=True)
+    chaves_antigas = set(normalizar_chave(df_raw[col_chave]).dropna())
+    chaves_novas = set(normalizar_chave(df_novo_raw[col_chave]).dropna())
+    insc_entradas = chaves_novas - chaves_antigas
+    insc_excluidas = chaves_antigas - chaves_novas
+    insc_mantidas = chaves_novas.intersection(chaves_antigas)
+    st.subheader("⚖️ Balanço de Confronto (Antes de Substituir)")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("🆕 Novas Inscrições", len(insc_entradas))
+    c2.metric("❌ Inscrições Excluídas", len(insc_excluidas))
+    c3.metric("🔁 Inscrições Mantidas", len(insc_mantidas))
+    if st.button("✅ Confirmar Confronto e Atualizar Base Oficial"):
+        with st.spinner("Arquivando histórico e atualizando base oficial..."):
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            caminho_backup = os.path.join(pasta_historico, f"backup_base_{timestamp}.parquet")
+            shutil.copy2(caminho_base_oficial, caminho_backup)
+            df_novo_raw["DATA_CARGA"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            df_novo_raw.to_parquet(caminho_base_oficial, index=False)
+            st.success("Base atualizada com sucesso! Backup salvo na pasta histórico.")
+            st.rerun()
+    else:
+        st.info("🔌 Configuração de Conexão PostgreSQL + Proxy (Preparado para Fase 4)")
+        col_db1, col_db2 = st.columns(2)
+        with col_db1:
+            st.text_input("Host / URL:", value="lpostpro27", disabled=True)
+            st.text_input("Porta / Banco:", value="5000 / smf", disabled=True)
+            st.text_input("Usuário Banco:", placeholder="Digite seu usuário do PostgreSQL")
+            st.text_input("Senha Banco:", type="password")
+            with col_db2:
+                st.text_input("Proxy Corporativo (Host:Porta):", placeholder="ex: procempa.com.br:3128")
+                st.text_input("Usuário Proxy:", placeholder="Usuário da rede")
+                st.text_input("Senha Proxy:", type="password")
+                st.text_area("Query SQL de Extração:", value="SELECT * FROM sua_tabela_imobiliaria LIMIT 100;")
+                st.button("⚡ Testar Conexão SQL (Ativaremos na Fase 4)", disabled=True)
