@@ -264,24 +264,20 @@ else:
                 anos_sel_f = st.multiselect(f"Filtrar por {col_ano}:", options=anos_f, key="filt_ano_exp")
                 if anos_sel_f:
                     df_filtrado = df_filtrado[df_filtrado[col_ano].isin(anos_sel_f)]
-
         with col_f2:
             if col_lote in df_filtrado.columns:
                 lotes_disponiveis = sorted(df_filtrado[col_lote].dropna().unique().tolist())
                 lotes_selecionados = st.multiselect(f"Filtrar por {col_lote}:", options=lotes_disponiveis, key="filt_lote_exp")
                 if lotes_selecionados:
                     df_filtrado = df_filtrado[df_filtrado[col_lote].isin(lotes_selecionados)]
-
         with col_f3:
             busca_insc = st.text_input(f"Buscar {col_chave} específica:", key="filt_insc_exp").strip()
             if busca_insc and col_chave in df_filtrado.columns:
                 df_filtrado = df_filtrado[df_filtrado[col_chave].astype(str).str.contains(busca_insc, case=False, na=False)]
-
         apenas_com_al = st.checkbox("Mostrar apenas inscrições com Auto de Lançamento (> 0)")
         if apenas_com_al and col_al in df_filtrado.columns:
             vals_al = converter_numero(df_filtrado[col_al])
             df_filtrado = df_filtrado[vals_al > 0]
-
         st.write(f"Exibindo **{len(df_filtrado):,}** registros de um total de **{len(df_raw):,}**.")
 st.dataframe(df_filtrado.head(200), use_container_width=True)
 st.divider()
@@ -294,22 +290,22 @@ st.download_button("📄 Baixar Filtrado (.csv)", data=csv_filt, file_name="reco
 xlsx_filt = converter_para_excel(df_filtrado)
 st.download_button("📊 Baixar Filtrado (.xlsx)", data=xlsx_filt, file_name="recorte_fiscal.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key="dl_xlsx_filt")
 with exp_col2:
-st.markdown("Exportar Base Oficial Completa:")
-csv_full = df_raw.to_csv(index=False, sep=";", encoding="utf-8-sig").encode("utf-8-sig")
-st.download_button("📄 Baixar Base Completa (.csv)", data=csv_full, file_name="base_oficial_completa.csv", mime="text/csv", key="dl_csv_full")
-xlsx_full = converter_para_excel(df_raw)
-st.download_button("📊 Baixar Base Completa (.xlsx)", data=xlsx_full, file_name="base_oficial_completa.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key="dl_xlsx_full")
+    st.markdown("Exportar Base Oficial Completa:")
+    csv_full = df_raw.to_csv(index=False, sep=";", encoding="utf-8-sig").encode("utf-8-sig")
+    st.download_button("📄 Baixar Base Completa (.csv)", data=csv_full, file_name="base_oficial_completa.csv", mime="text/csv", key="dl_csv_full")
+    xlsx_full = converter_para_excel(df_raw)
+    st.download_button("📊 Baixar Base Completa (.xlsx)", data=xlsx_full, file_name="base_oficial_completa.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key="dl_xlsx_full")
 # --------------------------------------------------------
 # ABA 4: ATUALIZAR BASE (CONFRONTO DIÁRIO / SQL)
 # --------------------------------------------------------
 with aba_atualizar:
-metodo_atualizacao = st.radio("Escolha a fonte de atualização:", ["Upload Manual (CSV / Excel)", "Extração Direta PostgreSQL (Em breve - Fase 4)"])
-if metodo_atualizacao == "Upload Manual (CSV / Excel)":
-arquivo_novo = st.file_uploader("Selecione a nova planilha diária/mensal:", type=["csv", "xlsx", "xls"], key="up_atualizacao")
-if arquivo_novo:
-df_novo_raw = ler_arquivo_blindado(arquivo_novo)
+    metodo_atualizacao = st.radio("Escolha a fonte de atualização:", ["Upload Manual (CSV / Excel)", "Extração Direta PostgreSQL (Em breve - Fase 4)"])
+    if metodo_atualizacao == "Upload Manual (CSV / Excel)":
+        arquivo_novo = st.file_uploader("Selecione a nova planilha diária/mensal:", type=["csv", "xlsx", "xls"], key="up_atualizacao")
+        if arquivo_novo:
+            df_novo_raw = ler_arquivo_blindado(arquivo_novo)
 if col_chave not in df_novo_raw.columns:
-st.error(f"A coluna chave '{col_chave}' não existe no arquivo enviado.")
+    st.error(f"A coluna chave '{col_chave}' não existe no arquivo enviado.")
 else:
 chaves_antigas = set(normalizar_chave(df_raw[col_chave]).dropna())
 chaves_novas = set(normalizar_chave(df_novo_raw[col_chave]).dropna())
