@@ -29,7 +29,7 @@ caminho_base_oficial = os.path.join(pasta_dados, "base_oficial.parquet")
 
 # 3. Mapeamento das Colunas Principais (Configurável)
 with st.sidebar.expander("🏷️ Mapeamento de Colunas", expanded=False):
-    col_chave = st.text_input("Inscrição Imobiliária (Chave):", value="inscrição imobiliária").strip()
+    col_chave = st.text_input("Inscrição Imobiliária (Chave):", value="NUM_INSCRICAO").strip()
     col_ano = st.text_input("Ano de Exercício:", value="ANO_EXERCICIO").strip()
     col_lote = st.text_input("Lote Fiscal:", value="Lotefiscal").strip()
     col_area_const = st.text_input("Área Construída:", value="área construída").strip()
