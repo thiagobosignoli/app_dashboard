@@ -58,7 +58,7 @@ def converter_numero(serie):
     # Trata formatos brasileiros (ex: 1.500,50 -> 1500.50)
     s = serie.astype(str).str.strip()
     s = np.where(s.str.contains(","), s.str.replace(".", "", regex=False).str.replace(",", ".", regex=False), s)
-    return pd.to_numeric(s, errors="coerce").fillna(0.0)
+    return pd.Series(pd.to_numeric(s, errors="coerce"), index=serie.index).fillna(0.0)
 
 def preparar_dataframe(df):
     df = df.copy()
