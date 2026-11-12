@@ -34,8 +34,8 @@ with st.sidebar.expander("🏷️ Mapeamento de Colunas", expanded=False):
     col_area_const = st.text_input("Área Construída:", value="área construída").strip()
     col_area_terr = st.text_input("Área Terreno:", value="área terreno").strip()
     col_venal = st.text_input("Valor Venal:", value="valor venal").strip()
-    col_iptu = st.text_input("IPTU (R$):", value="IPTU").strip()
-    col_iptu_moeda = st.text_input("IPTU Moeda:", value="IPTU Moeda").strip()
+    col_iptu = st.text_input("IPTU (UFMs):", value="IPTU").strip()
+    col_iptu_moeda = st.text_input("IPTU Moeda(R$):", value="IPTU Moeda").strip()
 
 # 4. Funções Utilitárias Blindadas
 def ler_arquivo_blindado(arquivo):
@@ -228,7 +228,7 @@ else:
                 st.text_input("Usuário Banco:", placeholder="Digite seu usuário do PostgreSQL")
                 st.text_input("Senha Banco:", type="password")
             with col_db2:
-                st.text_input("Proxy Corporativo (Host:Porta):", placeholder="ex: proxy.empresa.gov.br:8080")
+                st.text_input("Proxy Corporativo (Host:Porta):", placeholder="ex: proxy.procempa.com.br:3128")
                 st.text_input("Usuário Proxy:", placeholder="Usuário da rede")
                 st.text_input("Senha Proxy:", type="password")
             st.text_area("Query SQL de Extração:", value="SELECT * FROM sua_tabela_imobiliaria LIMIT 100;")
