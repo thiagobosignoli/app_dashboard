@@ -279,22 +279,22 @@ else:
             vals_al = converter_numero(df_filtrado[col_al])
             df_filtrado = df_filtrado[vals_al > 0]
         st.write(f"Exibindo **{len(df_filtrado):,}** registros de um total de **{len(df_raw):,}**.")
-st.dataframe(df_filtrado.head(200), use_container_width=True)
-st.divider()
-st.subheader("📥 Exportar Dados")
-exp_col1, exp_col2 = st.columns(2)
-with exp_col1:
-    st.markdown("Exportar Recorte Filtrado na Tela:")
-    csv_filt = df_filtrado.to_csv(index=False, sep=";", encoding="utf-8-sig").encode("utf-8-sig")
-    st.download_button("📄 Baixar Filtrado (.csv)", data=csv_filt, file_name="recorte_fiscal.csv", mime="text/csv", key="dl_csv_filt")
-    xlsx_filt = converter_para_excel(df_filtrado)
-    st.download_button("📊 Baixar Filtrado (.xlsx)", data=xlsx_filt, file_name="recorte_fiscal.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key="dl_xlsx_filt")
-with exp_col2:
-    st.markdown("Exportar Base Oficial Completa:")
-    csv_full = df_raw.to_csv(index=False, sep=";", encoding="utf-8-sig").encode("utf-8-sig")
-    st.download_button("📄 Baixar Base Completa (.csv)", data=csv_full, file_name="base_oficial_completa.csv", mime="text/csv", key="dl_csv_full")
-    xlsx_full = converter_para_excel(df_raw)
-    st.download_button("📊 Baixar Base Completa (.xlsx)", data=xlsx_full, file_name="base_oficial_completa.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key="dl_xlsx_full")
+        st.dataframe(df_filtrado.head(200), use_container_width=True)
+        st.divider()
+        st.subheader("📥 Exportar Dados")
+        exp_col1, exp_col2 = st.columns(2)
+        with exp_col1:
+            st.markdown("Exportar Recorte Filtrado na Tela:")
+            csv_filt = df_filtrado.to_csv(index=False, sep=";", encoding="utf-8-sig").encode("utf-8-sig")
+            st.download_button("📄 Baixar Filtrado (.csv)", data=csv_filt, file_name="recorte_fiscal.csv", mime="text/csv", key="dl_csv_filt")
+            xlsx_filt = converter_para_excel(df_filtrado)
+            st.download_button("📊 Baixar Filtrado (.xlsx)", data=xlsx_filt, file_name="recorte_fiscal.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key="dl_xlsx_filt")
+            with exp_col2:
+                st.markdown("Exportar Base Oficial Completa:")
+                csv_full = df_raw.to_csv(index=False, sep=";", encoding="utf-8-sig").encode("utf-8-sig")
+                st.download_button("📄 Baixar Base Completa (.csv)", data=csv_full, file_name="base_oficial_completa.csv", mime="text/csv", key="dl_csv_full")
+                xlsx_full = converter_para_excel(df_raw)
+                st.download_button("📊 Baixar Base Completa (.xlsx)", data=xlsx_full, file_name="base_oficial_completa.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key="dl_xlsx_full")
 # --------------------------------------------------------
 # ABA 4: ATUALIZAR BASE (CONFRONTO DIÁRIO / SQL)
 # --------------------------------------------------------
