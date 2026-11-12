@@ -32,11 +32,11 @@ with st.sidebar.expander("🏷️ Mapeamento de Colunas", expanded=False):
     col_chave = st.text_input("Inscrição Imobiliária (Chave):", value="NUM_INSCRICAO").strip()
     col_ano = st.text_input("Ano de Exercício:", value="ANO_EXERCICIO").strip()
     col_lote = st.text_input("Lote Fiscal:", value="Lotefiscal").strip()
-    col_area_const = st.text_input("Área Construída:", value="área construída").strip()
-    col_area_corr = st.text_input("Área Corrigida:", value="área Corrigida").strip()
-    col_venal = st.text_input("Valor Venal (R$):", value="valor venal").strip()
-    col_iptu_ufm = st.text_input("IPTU (UFMs):", value="IPTU").strip()
-    col_iptu_moeda = st.text_input("IPTU Moeda (R$):", value="IPTU Moeda").strip()
+    col_area_const = st.text_input("Área Construída:", value="MTR_AREA_REAL").strip()
+    col_area_corr = st.text_input("Área Corrigida:", value="MTR_AREA_CORRIGIDA").strip()
+    col_venal = st.text_input("Valor Venal (R$):", value="VLR_VENAL_IMOVEL_TRIB").strip()
+    col_iptu_ufm = st.text_input("IPTU (UFMs):", value="VLR_IPTU_UFM").strip()
+    col_iptu_moeda = st.text_input("IPTU Moeda (R$):", value="VLR_IPTU_MOEDA").strip()
     col_al = st.text_input("Auto de Lançamento (R$):", value="AutodeLancamento").strip()
 
 # 4. Funções Utilitárias Blindadas
