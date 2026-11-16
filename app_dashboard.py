@@ -241,8 +241,7 @@ else:
 
         # Grade de Gráficos
         g_esq, g_dir = st.columns([1.15, 1])
-
-            with g_esq:
+        with g_esq:
             st.markdown("**Distribuição por Tipo de Lançamento**")
             
             if col_tipo_lanc in df_atual.columns:
