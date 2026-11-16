@@ -275,23 +275,20 @@ else:
 
                 df_agrup = df_agrup.sort_values(col_ano)
 
-                fig_tempo_tipo = px.bar(
-                    df_agrup,
-                    x=col_ano,
-                    y=col_y_val,
-                    color=col_tipo_lanc,
-                    barmode="group",
-                    labels={col_ano: "Exercício", col_y_val: label_y, col_tipo_lanc: "Tipo de Lançamento"},
-                    text_auto=".2s"
+# Trava a largura das colunas para não ficarem grossas quando houver poucos anos
+                fig_tempo_tipo.update_traces(
+                    textposition="outside",
+                    cliponaxis=False,
+                    width=0.22
                 )
-
-                fig_tempo_tipo.update_traces(textposition="outside", cliponaxis=False)
                 fig_tempo_tipo.update_xaxes(type="category", title="Ano de Exercício")
                 fig_tempo_tipo.update_yaxes(title=label_y, showgrid=True, gridcolor="#f0f2f6")
                 
-                # Posiciona a legenda na parte inferior para manter o gráfico largo e limpo
+                # Controla o espaçamento entre os anos e posiciona a legenda na base
                 fig_tempo_tipo.update_layout(
                     height=450,
+                    bargap=0.35,
+                    bargroupgap=0.15,
                     margin=dict(l=10, r=10, t=25, b=10),
                     plot_bgcolor="rgba(0,0,0,0)",
                     legend=dict(
