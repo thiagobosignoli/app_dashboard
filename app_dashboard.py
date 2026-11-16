@@ -242,65 +242,71 @@ else:
         # Grade de Gráficos
         g_esq, g_dir = st.columns([1.15, 1])
         with g_esq:
-            st.markdown("**Visão Executiva: Impacto por Tipo de Lançamento**")
-            if col_tipo_lanc in df_atual.columns:
+            st.markdown("**Evolução Temporal por Tipo de Lançamento**")
+            if col_tipo_lanc in df_base_filtro.columns and col_ano in df_base_filtro.columns:
                 metrica_tipo = st.radio(
-                    "Visualizar impacto por:",
+                    "Visualizar evolução por:",
                     ["Valor Lançado IPTU (R$)", "Quantidade de Inscrições"],
                     horizontal=True,
                     key="radio_graf_tipo"
                 )
-                df_graf_tipo = df_atual.copy()
-                df_graf_tipo[col_tipo_lanc] = df_graf_tipo[col_tipo_lanc].astype(str).str.strip()
-                if metrica_tipo == "Valor Lançado IPTU (R$)" and f"{col_iptu_moeda}_NUM" in df_graf_tipo.columns:
-                    df_agrup = df_graf_tipo.groupby(col_tipo_lanc, as_index=False)[f"{col_iptu_moeda}_NUM"].sum()
+
+                # Usa df_base_filtro para manter todos os anos disponíveis na comparação
+                df_graf_tempo = df_base_filtro.copy()
+                df_graf_tempo[col_tipo_lanc] = df_graf_tempo[col_tipo_lanc].astype(str).str.strip()
+                df_graf_tempo[col_ano] = df_graf_tempo[col_ano].astype(str).str.strip()
+
+                # Mantém os 8 principais tipos de lançamento para não poluir a legenda
+                top_tipos = df_graf_tempo[col_tipo_lanc].value_counts().head(8).index
+                df_graf_tempo[col_tipo_lanc] = np.where(
+                    df_graf_tempo[col_tipo_lanc].isin(top_tipos),
+                    df_graf_tempo[col_tipo_lanc],
+                    "Outros Tipos"
+                )
+
+                if metrica_tipo == "Valor Lançado IPTU (R$)" and f"{col_iptu_moeda}_NUM" in df_graf_tempo.columns:
+                    df_agrup = df_graf_tempo.groupby([col_ano, col_tipo_lanc], as_index=False)[f"{col_iptu_moeda}_NUM"].sum()
                     col_y_val = f"{col_iptu_moeda}_NUM"
-                    label_x = "IPTU Moeda (R$)"
-                    df_agrup["Texto_Barra"] = df_agrup[col_y_val].apply(formatar_moeda_curta)
+                    label_y = "IPTU Moeda (R$)"
                 else:
-                    df_agrup = df_graf_tipo.groupby(col_tipo_lanc, as_index=False)[col_chave].count()
+                    df_agrup = df_graf_tempo.groupby([col_ano, col_tipo_lanc], as_index=False)[col_chave].count()
                     col_y_val = col_chave
-                    label_x = "Quantidade de Inscrições"
-                    df_agrup["Texto_Barra"] = df_agrup[col_y_val].apply(lambda x: formatar_numero(x, 0))
+                    label_y = "Quantidade de Inscrições"
 
-                # Ordena do maior para o menor impacto (no Plotly horizontal, ascending=True coloca o maior no topo)
-                df_agrup = df_agrup.sort_values(col_y_val, ascending=True).tail(12)
+                df_agrup = df_agrup.sort_values(col_ano)
 
-                # Encurta rótulos muito longos no eixo Y para não espremer o gráfico para a direita
-                df_agrup["Rotulo_Curto"] = df_agrup[col_tipo_lanc].apply(
-                    lambda s: s[:26] + "..." if len(s) > 28 else s
-                )
-
-                fig_horiz = px.bar(
+                fig_tempo_tipo = px.bar(
                     df_agrup,
-                    x=col_y_val,
-                    y="Rotulo_Curto",
-                    orientation="h",
-                    text="Texto_Barra",
-                    hover_data={col_tipo_lanc: True, "Rotulo_Curto": False, "Texto_Barra": False}
+                    x=col_ano,
+                    y=col_y_val,
+                    color=col_tipo_lanc,
+                    barmode="group",
+                    labels={col_ano: "Exercício", col_y_val: label_y, col_tipo_lanc: "Tipo de Lançamento"},
+                    text_auto=".2s"
                 )
+
+                fig_tempo_tipo.update_traces(textposition="outside", cliponaxis=False)
+                fig_tempo_tipo.update_xaxes(type="category", title="Ano de Exercício")
+                fig_tempo_tipo.update_yaxes(title=label_y, showgrid=True, gridcolor="#f0f2f6")
                 
-                # Controla a espessura das barras (width=0.45) e posiciona os valores fora delas
-                fig_horiz.update_traces(
-                    marker_color="#1f5aa6",
-                    textposition="outside",
-                    width=0.45,
-                    cliponaxis=False
+                # Posiciona a legenda na parte inferior para manter o gráfico largo e limpo
+                fig_tempo_tipo.update_layout(
+                    height=450,
+                    margin=dict(l=10, r=10, t=25, b=10),
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    legend=dict(
+                        orientation="h",
+                        yanchor="top",
+                        y=-0.2,
+                        xanchor="center",
+                        x=0.5,
+                        title=""
+                    )
                 )
-                
-                fig_horiz.update_yaxes(type="category", title="")
-                fig_horiz.update_xaxes(title=label_x, showgrid=True, gridcolor="#f0f2f6")
-                
-                # Ajusta altura dinâmica e margem direita para os valores não cortarem
-                altura_dinamica = max(280, len(df_agrup) * 42)
-                fig_horiz.update_layout(
-                    height=altura_dinamica,
-                    margin=dict(l=10, r=75, t=15, b=20),
-                    plot_bgcolor="rgba(0,0,0,0)"
-                )
-                st.plotly_chart(fig_horiz, use_container_width=True)
+                st.plotly_chart(fig_tempo_tipo, use_container_width=True)
             else:
-                st.info(f"Mapeie a coluna '{col_tipo_lanc}' na barra lateral para visualizar este gráfico.")
+                st.info(f"Mapeie as colunas '{col_tipo_lanc}' e '{col_ano}' na barra lateral para visualizar este gráfico.")
+
         with g_dir:
             st.markdown("**Comparação anual do lançamento (IPTU R$)**")
             if col_ano in df_base_filtro.columns and f"{col_iptu_moeda}_NUM" in df_base_filtro.columns:
