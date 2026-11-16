@@ -294,6 +294,7 @@ else:
                 fig_tempo_tipo.update_xaxes(type="category", title="Ano de Exercício")
                 fig_tempo_tipo.update_yaxes(title=label_y, showgrid=True, gridcolor="#f0f2f6")
                 
+                # Controla o espaçamento entre os anos e posiciona a legenda na base
                 fig_tempo_tipo.update_layout(
                     height=450,
                     bargap=0.35,
