@@ -242,46 +242,65 @@ else:
         # Grade de Gráficos
         g_esq, g_dir = st.columns([1.15, 1])
         with g_esq:
-            st.markdown("**Distribuição por Tipo de Lançamento**")
-            
+            st.markdown("**Visão Executiva: Impacto por Tipo de Lançamento**")
             if col_tipo_lanc in df_atual.columns:
-                # Seletor rápido para alternar o gráfico entre Valor (R$) e Quantidade de Inscrições
                 metrica_tipo = st.radio(
-                    "Visualizar gráfico por:",
+                    "Visualizar impacto por:",
                     ["Valor Lançado IPTU (R$)", "Quantidade de Inscrições"],
                     horizontal=True,
                     key="radio_graf_tipo"
                 )
-
                 df_graf_tipo = df_atual.copy()
                 df_graf_tipo[col_tipo_lanc] = df_graf_tipo[col_tipo_lanc].astype(str).str.strip()
-
                 if metrica_tipo == "Valor Lançado IPTU (R$)" and f"{col_iptu_moeda}_NUM" in df_graf_tipo.columns:
                     df_agrup = df_graf_tipo.groupby(col_tipo_lanc, as_index=False)[f"{col_iptu_moeda}_NUM"].sum()
                     col_y_val = f"{col_iptu_moeda}_NUM"
                     label_x = "IPTU Moeda (R$)"
+                    df_agrup["Texto_Barra"] = df_agrup[col_y_val].apply(formatar_moeda_curta)
                 else:
                     df_agrup = df_graf_tipo.groupby(col_tipo_lanc, as_index=False)[col_chave].count()
                     col_y_val = col_chave
                     label_x = "Quantidade de Inscrições"
+                    df_agrup["Texto_Barra"] = df_agrup[col_y_val].apply(lambda x: formatar_numero(x, 0))
 
-                df_agrup = df_agrup.sort_values(col_y_val, ascending=True).tail(15)
+                # Ordena do maior para o menor impacto (no Plotly horizontal, ascending=True coloca o maior no topo)
+                df_agrup = df_agrup.sort_values(col_y_val, ascending=True).tail(12)
+
+                # Encurta rótulos muito longos no eixo Y para não espremer o gráfico para a direita
+                df_agrup["Rotulo_Curto"] = df_agrup[col_tipo_lanc].apply(
+                    lambda s: s[:26] + "..." if len(s) > 28 else s
+                )
 
                 fig_horiz = px.bar(
                     df_agrup,
                     x=col_y_val,
-                    y=col_tipo_lanc,
+                    y="Rotulo_Curto",
                     orientation="h",
-                    labels={col_y_val: label_x, col_tipo_lanc: "Tipo de Lançamento"},
-                    text_auto=".2s"
+                    text="Texto_Barra",
+                    hover_data={col_tipo_lanc: True, "Rotulo_Curto": False, "Texto_Barra": False}
                 )
-                fig_horiz.update_traces(marker_color="#1f77b4", textposition="outside")
-                fig_horiz.update_yaxes(type="category")
-                fig_horiz.update_layout(height=420, margin=dict(l=10, r=40, t=10, b=10))
+                
+                # Controla a espessura das barras (width=0.45) e posiciona os valores fora delas
+                fig_horiz.update_traces(
+                    marker_color="#1f5aa6",
+                    textposition="outside",
+                    width=0.45,
+                    cliponaxis=False
+                )
+                
+                fig_horiz.update_yaxes(type="category", title="")
+                fig_horiz.update_xaxes(title=label_x, showgrid=True, gridcolor="#f0f2f6")
+                
+                # Ajusta altura dinâmica e margem direita para os valores não cortarem
+                altura_dinamica = max(280, len(df_agrup) * 42)
+                fig_horiz.update_layout(
+                    height=altura_dinamica,
+                    margin=dict(l=10, r=75, t=15, b=20),
+                    plot_bgcolor="rgba(0,0,0,0)"
+                )
                 st.plotly_chart(fig_horiz, use_container_width=True)
             else:
                 st.info(f"Mapeie a coluna '{col_tipo_lanc}' na barra lateral para visualizar este gráfico.")
-
         with g_dir:
             st.markdown("**Comparação anual do lançamento (IPTU R$)**")
             if col_ano in df_base_filtro.columns and f"{col_iptu_moeda}_NUM" in df_base_filtro.columns:
