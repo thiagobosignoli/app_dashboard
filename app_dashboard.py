@@ -28,14 +28,15 @@ os.makedirs(pasta_historico, exist_ok=True)
 
 caminho_base_oficial = os.path.join(pasta_dados, "base_oficial.parquet")
 
-# 3. Mapeamento das Colunas Principais (Configurável)
+# 3. Mapeamento das Colunas Principais (Atualizado com os nomes reais da imagem)
 with st.sidebar.expander("🏷️ Mapeamento de Colunas", expanded=False):
     col_chave = st.text_input("Inscrição Imobiliária (Chave):", value="NUM_INSCRICAO").strip()
     col_ano = st.text_input("Ano de Exercício:", value="ANO_EXERCICIO").strip()
+    col_tipo_lanc = st.text_input("Tipo de Lançamento:", value="TIPO_LANCAMENTO").strip()
     col_bairro = st.text_input("Bairro:", value="NOME_BAIRRO").strip()
-    col_lote = st.text_input("Lote Fiscal:", value="Lotefiscal").strip()
-    col_tipologia = st.text_input("Tipologia (Casa/Apto/Terreno):", value="TIPOLOGIA").strip()
-    col_uso = st.text_input("Uso (Residencial/Comercial):", value="USO_IMOVEL").strip()
+    col_lote = st.text_input("Lote Fiscal:", value="NUM_BLOCO").strip()
+    col_tipologia = st.text_input("Tipologia (Casa/Apto/Terreno):", value="DES_FINALIDADE").strip()
+    col_uso = st.text_input("Uso (Residencial/Comercial):", value="DES_USO").strip()
     col_area_const = st.text_input("Área Construída:", value="MTR_AREA_REAL").strip()
     col_area_corr = st.text_input("Área Corrigida:", value="MTR_AREA_CORRIGIDA").strip()
     col_venal = st.text_input("Valor Venal (R$):", value="VLR_VENAL_IMOVEL_TRIB").strip()
@@ -92,6 +93,8 @@ def preparar_dataframe(df):
         df["CHAVE_LIMPA"] = normalizar_chave(df[col_chave])
     if col_ano in df.columns:
         df[col_ano] = df[col_ano].astype(str).str.strip()
+    if col_tipo_lanc in df.columns:
+        df[col_tipo_lanc] = df[col_tipo_lanc].fillna("Não Informado").astype(str).str.strip()
     for c in [col_area_const, col_area_corr, col_venal, col_iptu_ufm, col_iptu_moeda, col_al]:
         if c in df.columns:
             df[f"{c}_NUM"] = converter_numero(df[c])
@@ -146,28 +149,37 @@ else:
     # ABA 1: PAINEL EXECUTIVO (ESTILO PROTÓTIPO DRI)
     # --------------------------------------------------------
     with aba_dash:
-        f_col1, f_col2, f_col3, f_col4 = st.columns(4)
+        # Linha 1 de Filtros Globais (Exercício e Tipo de Lançamento em destaque)
+        f_top1, f_top2 = st.columns([1, 2.5])
         
         ano_selecionado = "Todos os anos"
-        with f_col1:
+        with f_top1:
             if col_ano in df.columns:
                 anos_disp = sorted(df[col_ano].dropna().unique().tolist(), reverse=True)
                 opcoes_ano = ["Todos os anos"] + anos_disp
                 ano_selecionado = st.selectbox("EXERCÍCIO:", options=opcoes_ano, index=1 if len(anos_disp) > 0 else 0)
 
-        with f_col2:
+        with f_top2:
+            tipos_lanc_sel = []
+            if col_tipo_lanc in df.columns:
+                tipos_disp = sorted(df[col_tipo_lanc].dropna().unique().tolist())
+                tipos_lanc_sel = st.multiselect("TIPO DE LANÇAMENTO:", options=tipos_disp, placeholder="Todos os tipos de lançamento")
+
+        # Linha 2 de Filtros Estruturais (Bairro, Lote Fiscal e Uso)
+        f_col1, f_col2, f_col3 = st.columns(3)
+        with f_col1:
             bairros_sel = []
             if col_bairro in df.columns:
                 bairros_disp = sorted(df[col_bairro].dropna().unique().tolist())
                 bairros_sel = st.multiselect("BAIRRO:", options=bairros_disp, placeholder="Todos os bairros")
 
-        with f_col3:
+        with f_col2:
             lotes_sel_dash = []
             if col_lote in df.columns:
                 lotes_disp = sorted(df[col_lote].dropna().unique().tolist())
-                lotes_sel_dash = st.multiselect("LOTE FISCAL:", options=lotes_disp, placeholder="Todos os lotes")
+                lotes_sel_dash = st.multiselect("LOTE FISCAL (BLOCO):", options=lotes_disp, placeholder="Todos os lotes")
 
-        with f_col4:
+        with f_col3:
             usos_sel = []
             if col_uso in df.columns:
                 usos_disp = sorted(df[col_uso].dropna().unique().tolist())
@@ -175,6 +187,8 @@ else:
 
         # Aplica filtros estruturais antes da separação anual
         df_base_filtro = df.copy()
+        if tipos_lanc_sel and col_tipo_lanc in df_base_filtro.columns:
+            df_base_filtro = df_base_filtro[df_base_filtro[col_tipo_lanc].isin(tipos_lanc_sel)]
         if bairros_sel and col_bairro in df_base_filtro.columns:
             df_base_filtro = df_base_filtro[df_base_filtro[col_bairro].isin(bairros_sel)]
         if lotes_sel_dash and col_lote in df_base_filtro.columns:
@@ -229,7 +243,6 @@ else:
         g_esq, g_dir = st.columns([1.15, 1])
 
         with g_esq:
-            # Prioriza Bairro; se não existir na planilha, usa Lote Fiscal
             col_agrup_esq = col_bairro if col_bairro in df_atual.columns else col_lote
             nome_agrup_esq = "Bairro" if col_bairro in df_atual.columns else "Lote Fiscal"
 
@@ -280,12 +293,34 @@ else:
                     "Quantidade": [nao_edificados, edificados],
                     "Texto": [f"{formatar_numero(nao_edificados)} ({pct_nao_edif:.1f}%)", f"{formatar_numero(edificados)} ({pct_edif:.1f}%)"]
                 })
+
                 fig_edif = px.bar(df_edif, x="Quantidade", y="Tipo", orientation="h", text="Texto")
                 fig_edif.update_traces(marker_color="#1f77b4", textposition="outside")
                 fig_edif.update_layout(height=180, margin=dict(l=10, r=60, t=10, b=10), xaxis_visible=False, yaxis_title="")
                 st.plotly_chart(fig_edif, use_container_width=True)
 
-        # Tabela Consolidada Inferior (Prioriza Tipologia + Uso; fallback para Lote Fiscal)
+        # Resumo por Tipo de Lançamento (se houver a coluna na base)
+        if col_tipo_lanc in df_atual.columns:
+            st.divider()
+            st.markdown("**Resumo por Tipo de Lançamento**")
+            agg_tipo = {col_chave: "count"}
+            if f"{col_iptu_moeda}_NUM" in df_atual.columns:
+                agg_tipo[f"{col_iptu_moeda}_NUM"] = "sum"
+            if f"{col_iptu_ufm}_NUM" in df_atual.columns:
+                agg_tipo[f"{col_iptu_ufm}_NUM"] = "sum"
+            if f"{col_al}_NUM" in df_atual.columns:
+                agg_tipo[f"{col_al}_NUM"] = "sum"
+
+            df_tab_tipo = df_atual.groupby(col_tipo_lanc, as_index=False).agg(agg_tipo)
+            df_tab_tipo = df_tab_tipo.rename(columns={
+                col_chave: "Inscrições",
+                f"{col_iptu_moeda}_NUM": "IPTU Lançado (R$)",
+                f"{col_iptu_ufm}_NUM": "IPTU (UFMs)",
+                f"{col_al}_NUM": "Autos de Lançamento (R$)"
+            }).sort_values("Inscrições", ascending=False)
+            st.dataframe(df_tab_tipo, use_container_width=True, hide_index=True)
+
+        # Tabela Consolidada Inferior (Finalidade + Uso)
         st.divider()
         cols_grupo_tab = [c for c in [col_tipologia, col_uso] if c in df_atual.columns]
         if not cols_grupo_tab and col_lote in df_atual.columns:
@@ -323,7 +358,7 @@ else:
         st.subheader("Filtros e Exportação Personalizada")
         df_filtrado = df_raw.copy()
 
-        col_f1, col_f2, col_f3 = st.columns(3)
+        col_f1, col_f2, col_f3, col_f4 = st.columns(4)
         with col_f1:
             if col_ano in df_filtrado.columns:
                 anos_f = sorted(df_filtrado[col_ano].dropna().unique().tolist(), reverse=True)
@@ -331,12 +366,18 @@ else:
                 if anos_sel_f:
                     df_filtrado = df_filtrado[df_filtrado[col_ano].isin(anos_sel_f)]
         with col_f2:
+            if col_tipo_lanc in df_filtrado.columns:
+                tipos_f = sorted(df_filtrado[col_tipo_lanc].fillna("Não Informado").unique().tolist())
+                tipos_sel_f = st.multiselect(f"Filtrar por {col_tipo_lanc}:", options=tipos_f, key="filt_tipo_exp")
+                if tipos_sel_f:
+                    df_filtrado = df_filtrado[df_filtrado[col_tipo_lanc].fillna("Não Informado").isin(tipos_sel_f)]
+        with col_f3:
             if col_lote in df_filtrado.columns:
                 lotes_disponiveis = sorted(df_filtrado[col_lote].dropna().unique().tolist())
                 lotes_selecionados = st.multiselect(f"Filtrar por {col_lote}:", options=lotes_disponiveis, key="filt_lote_exp")
                 if lotes_selecionados:
                     df_filtrado = df_filtrado[df_filtrado[col_lote].isin(lotes_selecionados)]
-        with col_f3:
+        with col_f4:
             busca_insc = st.text_input(f"Buscar {col_chave} específica:", key="filt_insc_exp").strip()
             if busca_insc and col_chave in df_filtrado.columns:
                 df_filtrado = df_filtrado[df_filtrado[col_chave].astype(str).str.contains(busca_insc, case=False, na=False)]
@@ -410,9 +451,9 @@ else:
                 st.text_input("Porta / Banco:", value="5000 / smf", disabled=True)
                 st.text_input("Usuário Banco:", placeholder="Digite seu usuário do PostgreSQL")
                 st.text_input("Senha Banco:", type="password")
-            with col_db2:
-                st.text_input("Proxy Corporativo (Host:Porta):", placeholder="ex: procempa.com.br:3128")
-                st.text_input("Usuário Proxy:", placeholder="Usuário da rede")
-                st.text_input("Senha Proxy:", type="password")
-            st.text_area("Query SQL de Extração:", value="SELECT * FROM sua_tabela_imobiliaria LIMIT 100;")
-            st.button("⚡ Testar Conexão SQL (Ativaremos na Fase 4)", disabled=True)
+                with col_db2:
+                    st.text_input("Proxy Corporativo (Host:Porta):", placeholder="ex: procempa.com.br:3128")
+                    st.text_input("Usuário Proxy:", placeholder="Usuário da rede")
+                    st.text_input("Senha Proxy:", type="password")
+                    st.text_area("Query SQL de Extração:", value="SELECT * FROM sua_tabela_imobiliaria LIMIT 100;")
+                    st.button("⚡ Testar Conexão SQL (Ativaremos na Fase 4)", disabled=True)
