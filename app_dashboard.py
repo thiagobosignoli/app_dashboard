@@ -244,11 +244,15 @@ else:
 
         with g_esq:
             col_agrup_esq = col_bairro if col_bairro in df_atual.columns else col_lote
-            nome_agrup_esq = "Bairro" if col_bairro in df_atual.columns else "Lote Fiscal"
+            nome_agrup_esq = "Bairro" if col_bairro in df_atual.columns else "Lote Fiscal (Bloco)"
 
-            st.markdown(f"**Lançamento de IPTU por {nome_agrup_esq}**")
+            st.markdown(f"**Top 15 {nome_agrup_esq} por Lançamento de IPTU (R$)**")
             if col_agrup_esq in df_atual.columns and f"{col_iptu_moeda}_NUM" in df_atual.columns:
-                df_graf_esq = df_atual.groupby(col_agrup_esq, as_index=False)[f"{col_iptu_moeda}_NUM"].sum()
+                df_graf_esq = df_atual.copy()
+                # Garante que o código do lote/bloco seja tratado estritamente como texto (categoria)
+                df_graf_esq[col_agrup_esq] = df_graf_esq[col_agrup_esq].astype(str).str.strip()
+                
+                df_graf_esq = df_graf_esq.groupby(col_agrup_esq, as_index=False)[f"{col_iptu_moeda}_NUM"].sum()
                 df_graf_esq = df_graf_esq.sort_values(f"{col_iptu_moeda}_NUM", ascending=True).tail(15)
 
                 fig_horiz = px.bar(
@@ -259,8 +263,10 @@ else:
                     labels={f"{col_iptu_moeda}_NUM": "IPTU Moeda (R$)", col_agrup_esq: nome_agrup_esq},
                     text_auto=".2s"
                 )
-                fig_horiz.update_traces(marker_color="#1f77b4")
-                fig_horiz.update_layout(height=460, margin=dict(l=10, r=10, t=10, b=10))
+                fig_horiz.update_traces(marker_color="#1f77b4", textposition="outside")
+                # Força o eixo Y a ser categórico (rótulo de texto) e não escala numérica
+                fig_horiz.update_yaxes(type="category")
+                fig_horiz.update_layout(height=460, margin=dict(l=10, r=40, t=10, b=10))
                 st.plotly_chart(fig_horiz, use_container_width=True)
             else:
                 st.info("Mapeie as colunas de Bairro/Lote e IPTU Moeda para visualizar este gráfico.")
