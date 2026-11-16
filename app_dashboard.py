@@ -243,6 +243,7 @@ else:
         g_esq, g_dir = st.columns([1.15, 1])
         with g_esq:
             st.markdown("**Evolução Temporal por Tipo de Lançamento**")
+            
             if col_tipo_lanc in df_base_filtro.columns and col_ano in df_base_filtro.columns:
                 metrica_tipo = st.radio(
                     "Visualizar evolução por:",
@@ -251,12 +252,10 @@ else:
                     key="radio_graf_tipo"
                 )
 
-                # Usa df_base_filtro para manter todos os anos disponíveis na comparação
                 df_graf_tempo = df_base_filtro.copy()
                 df_graf_tempo[col_tipo_lanc] = df_graf_tempo[col_tipo_lanc].astype(str).str.strip()
                 df_graf_tempo[col_ano] = df_graf_tempo[col_ano].astype(str).str.strip()
 
-                # Mantém os 8 principais tipos de lançamento para não poluir a legenda
                 top_tipos = df_graf_tempo[col_tipo_lanc].value_counts().head(8).index
                 df_graf_tempo[col_tipo_lanc] = np.where(
                     df_graf_tempo[col_tipo_lanc].isin(top_tipos),
@@ -272,13 +271,29 @@ else:
                     df_agrup = df_graf_tempo.groupby([col_ano, col_tipo_lanc], as_index=False)[col_chave].count()
                     col_y_val = col_chave
                     label_y = "Quantidade de Inscrições"
-                    df_agrup = df_agrup.sort_values(col_ano)     
+
+                df_agrup = df_agrup.sort_values(col_ano)
+
+                # Criação da variável fig_tempo_tipo
+                fig_tempo_tipo = px.bar(
+                    df_agrup,
+                    x=col_ano,
+                    y=col_y_val,
+                    color=col_tipo_lanc,
+                    barmode="group",
+                    labels={col_ano: "Exercício", col_y_val: label_y, col_tipo_lanc: "Tipo de Lançamento"},
+                    text_auto=".2s"
+                )
+
                 # Trava a largura das colunas para não ficarem grossas quando houver poucos anos
-                    fig_tempo_tipo.update_traces(textposition="outside", cliponaxis=False, width=0.22)
+                fig_tempo_tipo.update_traces(
+                    textposition="outside",
+                    cliponaxis=False,
+                    width=0.22
+                )
                 fig_tempo_tipo.update_xaxes(type="category", title="Ano de Exercício")
                 fig_tempo_tipo.update_yaxes(title=label_y, showgrid=True, gridcolor="#f0f2f6")
                 
-                # Controla o espaçamento entre os anos e posiciona a legenda na base
                 fig_tempo_tipo.update_layout(
                     height=450,
                     bargap=0.35,
@@ -297,6 +312,7 @@ else:
                 st.plotly_chart(fig_tempo_tipo, use_container_width=True)
             else:
                 st.info(f"Mapeie as colunas '{col_tipo_lanc}' e '{col_ano}' na barra lateral para visualizar este gráfico.")
+
 
         with g_dir:
             st.markdown("**Comparação anual do lançamento (IPTU R$)**")
