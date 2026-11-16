@@ -272,9 +272,7 @@ else:
                     df_agrup = df_graf_tempo.groupby([col_ano, col_tipo_lanc], as_index=False)[col_chave].count()
                     col_y_val = col_chave
                     label_y = "Quantidade de Inscrições"
-
-                df_agrup = df_agrup.sort_values(col_ano)
-                
+                    df_agrup = df_agrup.sort_values(col_ano)     
                 # Trava a largura das colunas para não ficarem grossas quando houver poucos anos
                 fig_tempo_tipo.update_traces(
                     textposition="outside",
