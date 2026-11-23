@@ -334,22 +334,17 @@ else:
                         st.plotly_chart(fig_edif, use_container_width=True)
                         # Resumo por Tipo de Lançamento (se houver a coluna na base)
             if col_tipo_lanc in df_atual.columns:
-            st.divider()
-            st.markdown("**Resumo por Tipo de Lançamento**")
-            agg_tipo = {col_chave: "count"}
-            if f"{col_iptu_moeda}_NUM" in df_atual.columns:
-                agg_tipo[f"{col_iptu_moeda}_NUM"] = "sum"
-            if f"{col_iptu_ufm}_NUM" in df_atual.columns:
-                agg_tipo[f"{col_iptu_ufm}_NUM"] = "sum"
-            if f"{col_al}_NUM" in df_atual.columns:
-                agg_tipo[f"{col_al}_NUM"] = "sum"
-
-            df_tab_tipo = df_atual.groupby(col_tipo_lanc, as_index=False).agg(agg_tipo)
-            df_tab_tipo = df_tab_tipo.rename(columns={
-                col_chave: "Inscrições",
-                f"{col_iptu_moeda}_NUM": "IPTU Lançado (R$)",
-                f"{col_iptu_ufm}_NUM": "IPTU (UFMs)",
-                f"{col_al}_NUM": "Autos de Lançamento (R$)"
+                st.divider()
+                st.markdown("**Resumo por Tipo de Lançamento**")
+                agg_tipo = {col_chave: "count"}
+                if f"{col_iptu_moeda}_NUM" in df_atual.columns:
+                    agg_tipo[f"{col_iptu_moeda}_NUM"] = "sum"
+                    if f"{col_iptu_ufm}_NUM" in df_atual.columns:
+                        agg_tipo[f"{col_iptu_ufm}_NUM"] = "sum"
+                        if f"{col_al}_NUM" in df_atual.columns:
+                            agg_tipo[f"{col_al}_NUM"] = "sum"
+                            df_tab_tipo = df_atual.groupby(col_tipo_lanc, as_index=False).agg(agg_tipo)
+                            df_tab_tipo = df_tab_tipo.rename(columns={col_chave: "Inscrições", f"{col_iptu_moeda}_NUM": "IPTU Lançado (R$)", f"{col_iptu_ufm}_NUM": "IPTU (UFMs)", f"{col_al}_NUM": "Autos de Lançamento (R$)"
             }).sort_values("Inscrições", ascending=False)
             st.dataframe(df_tab_tipo, use_container_width=True, hide_index=True)
 
