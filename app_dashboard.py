@@ -325,14 +325,15 @@ else:
                         nao_edificados = insc_atual - edificados
                         pct_edif = (edificados / insc_atual) * 100
                         pct_nao_edif = (nao_edificados / insc_atual) * 100
-                        df_edif = pd.DataFrame({"Tipo": ["Não edificados (territorial)", "Edificados"], "Quantidade": [nao_edificados, edificados],
-                        "Texto": [f"{formatar_numero(nao_edificados)} ({pct_nao_edif:.1f}%)", f"{formatar_numero(edificados)} ({pct_edif:.1f}%)"]})
+                        df_edif = pd.DataFrame({"Tipo": ["Não edificados", "Edificados"], "Quantidade": [nao_edificados, edificados], "Texto": [f"{formatar_numero(nao_edificados)} ({pct_nao_edif:.1f}%)", f"{formatar_numero(edificados)} ({pct_edif:.1f}%)"]})
                         fig_edif = px.bar(df_edif, x="Quantidade", y="Tipo", orientation="h", text="Texto")
-                        fig_edif.update_traces(marker_color="#1f77b4", textposition="outside")
-                        fig_edif.update_layout(height=180, margin=dict(l=10, r=60, t=10, b=10), xaxis_visible=False, yaxis_title="")
+                        fig_edif.update_traces(marker_color="#1f5aa6", textposition="outside", width=0.45, cliponaxis=False)
+                        fig_edif.update_yaxes(type="category", title="")
+                        fig_edif.update_xaxes(visible=False)
+                        fig_edif.update_layout(height=180, bargap=0.4, margin=dict(l=10, r=95, t=10, b=10), plot_bgcolor="rgba(0,0,0,0)")
                         st.plotly_chart(fig_edif, use_container_width=True)
-            # Resumo por Tipo de Lançamento (se houver a coluna na base)
-        if col_tipo_lanc in df_atual.columns:
+                        # Resumo por Tipo de Lançamento (se houver a coluna na base)
+            if col_tipo_lanc in df_atual.columns:
             st.divider()
             st.markdown("**Resumo por Tipo de Lançamento**")
             agg_tipo = {col_chave: "count"}
