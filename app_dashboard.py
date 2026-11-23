@@ -45,26 +45,9 @@ with st.sidebar.expander("🏷️ Mapeamento de Colunas", expanded=False):
     col_al = st.text_input("Auto de Lançamento (R$):", value="AutodeLancamento").strip()
 # 3.1. Configuração de Metas Anuais (Interativo na Barra Lateral)
 with st.sidebar.expander("🎯 Configuração de Metas", expanded=False):
-    meta_iptu_rs = st.number_input("Meta IPTU Lançado (R$):",
-        min_value=0.0,
-        value=50000000.0,
-        step=1000000.0,
-        format="%.2f"
-    )
-    meta_als_rs = st.number_input(
-        "Meta Autos de Lançamento (R$):",
-        min_value=0.0,
-        value=5000000.0,
-        step=500000.0,
-        format="%.2f"
-    )
-    meta_inscricoes = st.number_input(
-        "Meta de Inscrições Lançadas (Qtd):",
-        min_value=0,
-        value=10000,
-        step=500
-    )
-
+    meta_iptu_rs = st.number_input("Meta IPTU Lançado (R$):", min_value=0.0, value=50000000.0, step=1000000.0, format="%.2f")
+    meta_als_rs = st.number_input("Meta Autos de Lançamento (R$):", min_value=0.0, value=5000000.0, step=500000.0, format="%.2f")
+    meta_inscricoes = st.number_input("Meta de Inscrições Lançadas (Qtd):", min_value=0, value=10000, step=500)
 # 4. Funções Utilitárias Blindadas
 def ler_arquivo_blindado(arquivo):
     nome = arquivo.name.lower()
@@ -568,6 +551,7 @@ else:
                     st.text_input("Senha Proxy:", type="password")
                     st.text_area("Query SQL de Extração:", value="SELECT * FROM sua_tabela_imobiliaria LIMIT 100;")
                     st.button("⚡ Testar Conexão SQL (Ativaremos na Fase 4)", disabled=True)
+
 
 
 
