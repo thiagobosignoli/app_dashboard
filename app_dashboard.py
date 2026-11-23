@@ -347,33 +347,24 @@ else:
                             df_tab_tipo = df_tab_tipo.rename(columns={col_chave: "Inscrições", f"{col_iptu_moeda}_NUM": "IPTU Lançado (R$)", f"{col_iptu_ufm}_NUM": "IPTU (UFMs)", f"{col_al}_NUM": "Autos de Lançamento (R$)"
             }).sort_values("Inscrições", ascending=False)
             st.dataframe(df_tab_tipo, use_container_width=True, hide_index=True)
-
-        # Tabela Consolidada Inferior (Finalidade + Uso)
+            # Tabela Consolidada Inferior (Finalidade + Uso)
         st.divider()
         cols_grupo_tab = [c for c in [col_tipologia, col_uso] if c in df_atual.columns]
         if not cols_grupo_tab and col_lote in df_atual.columns:
-            cols_grupo_tab = [col_lote]
-
+            cols_grupo_tab = [col_lote]         
         if cols_grupo_tab:
             st.markdown(f"**Lançamento e consolidação por {' / '.join(cols_grupo_tab)}**")
             agg_resumo = {col_chave: "count"}
             if f"{col_iptu_moeda}_NUM" in df_atual.columns:
                 agg_resumo[f"{col_iptu_moeda}_NUM"] = "sum"
-            if f"{col_iptu_ufm}_NUM" in df_atual.columns:
-                agg_resumo[f"{col_iptu_ufm}_NUM"] = "sum"
-            if f"{col_al}_NUM" in df_atual.columns:
-                agg_resumo[f"{col_al}_NUM"] = "sum"
-            if f"{col_venal}_NUM" in df_atual.columns:
-                agg_resumo[f"{col_venal}_NUM"] = "sum"
-
-            df_tab_resumo = df_atual.groupby(cols_grupo_tab, as_index=False).agg(agg_resumo)
-            df_tab_resumo = df_tab_resumo.rename(columns={
-                col_chave: "Inscrições",
-                f"{col_iptu_moeda}_NUM": "IPTU Lançado (R$)",
-                f"{col_iptu_ufm}_NUM": "IPTU (UFMs)",
-                f"{col_al}_NUM": "Autos de Lançamento (R$)",
-                f"{col_venal}_NUM": "Valor Venal (R$)"
-            })
+                if f"{col_iptu_ufm}_NUM" in df_atual.columns:
+                    agg_resumo[f"{col_iptu_ufm}_NUM"] = "sum"
+                    if f"{col_al}_NUM" in df_atual.columns:
+                        agg_resumo[f"{col_al}_NUM"] = "sum"
+                        if f"{col_venal}_NUM" in df_atual.columns:
+                            agg_resumo[f"{col_venal}_NUM"] = "sum"
+                            df_tab_resumo = df_atual.groupby(cols_grupo_tab, as_index=False).agg(agg_resumo)
+                            df_tab_resumo = df_tab_resumo.rename(columns={col_chave: "Inscrições", f"{col_iptu_moeda}_NUM": "IPTU Lançado (R$)", f"{col_iptu_ufm}_NUM": "IPTU (UFMs)", f"{col_al}_NUM": "Autos de Lançamento (R$)", f"{col_venal}_NUM": "Valor Venal (R$)"})
             if "IPTU Lançado (R$)" in df_tab_resumo.columns:
                 df_tab_resumo = df_tab_resumo.sort_values("IPTU Lançado (R$)", ascending=False)
 
