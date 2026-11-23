@@ -332,6 +332,60 @@ else:
                         fig_edif.update_xaxes(visible=False)
                         fig_edif.update_layout(height=180, bargap=0.4, margin=dict(l=10, r=95, t=10, b=10), plot_bgcolor="rgba(0,0,0,0)")
                         st.plotly_chart(fig_edif, use_container_width=True)
+        # ========================================================
+        # NOVO GRÁFICO: EVOLUÇÃO DA ÁREA CONSTRUÍDA NO TEMPO
+        # ========================================================
+        st.divider()
+        st.markdown("**Evolução da Área Construída na Cidade por Exercício (m²)**")
+
+        if col_ano in df_base_filtro.columns and f"{col_area_const}_NUM" in df_base_filtro.columns:
+            # Permite alternar entre Área Real e Área Corrigida (se mapeada)
+            opcoes_area = ["Área Construída (MTR_AREA_REAL)"]
+            if f"{col_area_corr}_NUM" in df_base_filtro.columns:
+                opcoes_area.append("Área Corrigida (MTR_AREA_CORRIGIDA)")
+
+            tipo_area_sel = st.radio(
+                "Métrica de área:",
+                opcoes_area,
+                horizontal=True,
+                key="radio_evolucao_area"
+            )
+
+            col_area_usar = f"{col_area_const}_NUM" if "Construída" in tipo_area_sel else f"{col_area_corr}_NUM"
+
+            df_area_tempo = df_base_filtro.groupby(col_ano, as_index=False)[col_area_usar].sum().sort_values(col_ano)
+            cores_area = ["#1f5aa6" if str(a) == str(ano_selecionado) else "#b0b8c4" for a in df_area_tempo[col_ano]]
+
+            # Formata os rótulos de m² de forma limpa (mi m² ou mil m²)
+            def formatar_m2_curto(v):
+                if abs(v) >= 1_000_000:
+                    return f"{v/1_000_000:,.2f} mi m²".replace(",", "X").replace(".", ",").replace("X", ".")
+                elif abs(v) >= 1_000:
+                    return f"{v/1_000:,.1f} mil m²".replace(",", "X").replace(".", ",").replace("X", ".")
+                return f"{v:,.0f} m²".replace(",", ".")
+
+            fig_area_tempo = go.Figure(data=[go.Bar(
+                x=df_area_tempo[col_ano],
+                y=df_area_tempo[col_area_usar],
+                marker_color=cores_area,
+                text=[formatar_m2_curto(v) for v in df_area_tempo[col_area_usar]],
+                textposition="outside",
+                width=0.28,
+                cliponaxis=False
+            )])
+
+            fig_area_tempo.update_xaxes(type="category", title="Ano de Exercício")
+            fig_area_tempo.update_yaxes(showgrid=True, gridcolor="#f0f2f6", title="Área Total (m²)")
+            fig_area_tempo.update_layout(
+                height=320,
+                bargap=0.45,
+                margin=dict(l=10, r=10, t=30, b=10),
+                plot_bgcolor="rgba(0,0,0,0)"
+            )
+            st.plotly_chart(fig_area_tempo, use_container_width=True)
+        else:
+            st.info(f"Mapeie as colunas '{col_ano}' e '{col_area_const}' na barra lateral para visualizar a evolução de área.")
+
                         # Resumo por Tipo de Lançamento (se houver a coluna na base)
             if col_tipo_lanc in df_atual.columns:
                 st.divider()
