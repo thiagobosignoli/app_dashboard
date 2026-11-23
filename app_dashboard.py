@@ -240,9 +240,46 @@ else:
         k4.metric(f"Autos Lanç. ({al_qtd_atual} ALs)", formatar_moeda_curta(al_rs_atual), delta=calcular_delta(al_rs_atual, al_rs_ant))
         k5.metric("Valor Venal Total", formatar_moeda_curta(venal_atual), delta=calcular_delta(venal_atual, venal_ant))
         k6.metric("Ticket Médio IPTU", formatar_moeda(ticket_atual), delta=calcular_delta(ticket_atual, ticket_ant))
-
         st.divider()
-
+        # ========================================================
+        # PAINEL DE REALIZAÇÃO DE METAS (ESTILO PROTÓTIPO DRI)
+        # ========================================================
+        st.divider()
+        st.markdown("**🎯 Acompanhamento de Metas do Exercício**")
+        m1, m2, m3 = st.columns(3)
+        # Meta 1: IPTU Lançado (R$)
+        with m1:
+            pct_meta_iptu = (iptu_rs_atual / meta_iptu_rs * 100) if meta_iptu_rs > 0 else 0.0
+            falta_iptu = max(0.0, meta_iptu_rs - iptu_rs_atual)
+            st.metric(
+                label=f"Meta IPTU ({formatar_moeda_curta(meta_iptu_rs)})",
+                value=f"{pct_meta_iptu:,.1f}% Realizado".replace(".", ","),
+                delta=f"Faltam {formatar_moeda_curta(falta_iptu)}" if falta_iptu > 0 else "Meta Atingida! 🎉",
+                delta_color="normal" if falta_iptu == 0 else "off"
+            )
+            st.progress(min(1.0, pct_meta_iptu / 100.0))
+        # Meta 2: Autos de Lançamento (R$)
+        with m2:
+            pct_meta_al = (al_rs_atual / meta_als_rs * 100) if meta_als_rs > 0 else 0.0
+            falta_al = max(0.0, meta_als_rs - al_rs_atual)
+            st.metric(
+                label=f"Meta Autos Lanç. ({formatar_moeda_curta(meta_als_rs)})",
+                value=f"{pct_meta_al:,.1f}% Realizado".replace(".", ","),
+                delta=f"Faltam {formatar_moeda_curta(falta_al)}" if falta_al > 0 else "Meta Atingida! 🎉",
+                delta_color="normal" if falta_al == 0 else "off"
+            )
+            st.progress(min(1.0, pct_meta_al / 100.0))
+        # Meta 3: Estoque de Inscrições
+        with m3:
+            pct_meta_insc = (insc_atual / meta_inscricoes * 100) if meta_inscoes > 0 else 0.0
+            falta_insc = max(0, meta_inscricoes - insc_atual)
+            st.metric(
+                label=f"Meta Inscrições ({formatar_numero(meta_inscricoes)})",
+                value=f"{pct_meta_insc:,.1f}% Realizado".replace(".", ","),
+                delta=f"Faltam {formatar_numero(falta_insc)} insc." if falta_insc > 0 else "Meta Atingida! 🎉",
+                delta_color="normal" if falta_insc == 0 else "off"
+            )
+            st.progress(min(1.0, pct_meta_insc / 100.0))
         # Grade de Gráficos
         g_esq, g_dir = st.columns([1.15, 1])
         with g_esq:
@@ -551,6 +588,7 @@ else:
                     st.text_input("Senha Proxy:", type="password")
                     st.text_area("Query SQL de Extração:", value="SELECT * FROM sua_tabela_imobiliaria LIMIT 100;")
                     st.button("⚡ Testar Conexão SQL (Ativaremos na Fase 4)", disabled=True)
+
 
 
 
