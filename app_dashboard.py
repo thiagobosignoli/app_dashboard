@@ -365,11 +365,9 @@ else:
                             agg_resumo[f"{col_venal}_NUM"] = "sum"
                             df_tab_resumo = df_atual.groupby(cols_grupo_tab, as_index=False).agg(agg_resumo)
                             df_tab_resumo = df_tab_resumo.rename(columns={col_chave: "Inscrições", f"{col_iptu_moeda}_NUM": "IPTU Lançado (R$)", f"{col_iptu_ufm}_NUM": "IPTU (UFMs)", f"{col_al}_NUM": "Autos de Lançamento (R$)", f"{col_venal}_NUM": "Valor Venal (R$)"})
-            if "IPTU Lançado (R$)" in df_tab_resumo.columns:
-                df_tab_resumo = df_tab_resumo.sort_values("IPTU Lançado (R$)", ascending=False)
-
-            st.dataframe(df_tab_resumo, use_container_width=True, hide_index=True)
-
+                            if "IPTU Lançado (R$)" in df_tab_resumo.columns:
+                                df_tab_resumo = df_tab_resumo.sort_values("IPTU Lançado (R$)", ascending=False)
+                                st.dataframe(df_tab_resumo, use_container_width=True, hide_index=True)
     # --------------------------------------------------------
     # ABA 2: EXPLORAR E EXPORTAR DADOS
     # --------------------------------------------------------
