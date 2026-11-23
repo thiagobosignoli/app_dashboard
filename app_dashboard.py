@@ -360,7 +360,7 @@ else:
                     st.plotly_chart(fig_edif, use_container_width=True)
                 else:
                     st.warning(f"Mapeie a coluna '{col_tipologia}' ou '{col_area_const}' na barra lateral.")
-            else:
+                else:
                 st.info("Nenhum registro encontrado para os filtros selecionados.")               
         # ========================================================
         # NOVO GRÁFICO: EVOLUÇÃO DA ÁREA CONSTRUÍDA NO TEMPO
