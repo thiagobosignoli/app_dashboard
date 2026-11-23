@@ -271,14 +271,9 @@ else:
             st.progress(min(1.0, pct_meta_al / 100.0))
         # Meta 3: Estoque de Inscrições
         with m3:
-            pct_meta_insc = (insc_atual / meta_inscricoes * 100) if meta_inscoes > 0 else 0.0
+            pct_meta_insc = (insc_atual / meta_inscricoes * 100) if meta_inscricoes > 0 else 0.0
             falta_insc = max(0, meta_inscricoes - insc_atual)
-            st.metric(
-                label=f"Meta Inscrições ({formatar_numero(meta_inscricoes)})",
-                value=f"{pct_meta_insc:,.1f}% Realizado".replace(".", ","),
-                delta=f"Faltam {formatar_numero(falta_insc)} insc." if falta_insc > 0 else "Meta Atingida! 🎉",
-                delta_color="normal" if falta_insc == 0 else "off"
-            )
+            st.metric(label=f"Meta Inscrições ({formatar_numero(meta_inscricoes)})", value=f"{pct_meta_insc:,.1f}% Realizado".replace(".", ","), delta=f"Faltam {formatar_numero(falta_insc)} insc." if falta_insc > 0 else "Meta Atingida! 🎉", delta_color="normal" if falta_insc == 0 else "off")
             st.progress(min(1.0, pct_meta_insc / 100.0))
         # Grade de Gráficos
         g_esq, g_dir = st.columns([1.15, 1])
@@ -588,6 +583,7 @@ else:
                     st.text_input("Senha Proxy:", type="password")
                     st.text_area("Query SQL de Extração:", value="SELECT * FROM sua_tabela_imobiliaria LIMIT 100;")
                     st.button("⚡ Testar Conexão SQL (Ativaremos na Fase 4)", disabled=True)
+
 
 
 
