@@ -349,7 +349,8 @@ else:
                     else:
                         st.warning(f"Mapeie a coluna '{col_tipologia}' ou '{col_area_const}' na barra lateral.")
                 else:
-                st.info("Nenhum registro encontrado para os filtros selecionados.")               
+                    st.info("Nenhum registro encontrado para os filtros selecionados.")
+
         # ========================================================
         # NOVO GRÁFICO: EVOLUÇÃO DA ÁREA CONSTRUÍDA NO TEMPO
         # ========================================================
@@ -546,4 +547,5 @@ else:
                     st.text_input("Senha Proxy:", type="password")
                     st.text_area("Query SQL de Extração:", value="SELECT * FROM sua_tabela_imobiliaria LIMIT 100;")
                     st.button("⚡ Testar Conexão SQL (Ativaremos na Fase 4)", disabled=True)
+
 
