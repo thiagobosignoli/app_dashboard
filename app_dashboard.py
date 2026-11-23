@@ -339,27 +339,15 @@ else:
                         df_edif = pd.DataFrame({
                         "Tipo": ["Não edificados (Terrenos)", "Edificados"],
                         "Quantidade": [nao_edificados, edificados],
-                        "Texto": [f"{formatar_numero(nao_edificados)} ({pct_nao_edif:.1f}%)", f"{formatar_numero(edificados)} ({pct_edif:.1f}%)"]
-                    })
-
-                    fig_edif = px.bar(df_edif, x="Quantidade", y="Tipo", orientation="h", text="Texto")
-                    fig_edif.update_traces(
-                        marker_color="#1f5aa6",
-                        textposition="outside",
-                        width=0.45,
-                        cliponaxis=False
-                    )
-                    fig_edif.update_yaxes(type="category", title="")
-                    fig_edif.update_xaxes(visible=False)
-                    fig_edif.update_layout(
-                        height=180,
-                        bargap=0.4,
-                        margin=dict(l=10, r=95, t=10, b=10),
-                        plot_bgcolor="rgba(0,0,0,0)"
-                    )
-                    st.plotly_chart(fig_edif, use_container_width=True)
-                else:
-                    st.warning(f"Mapeie a coluna '{col_tipologia}' ou '{col_area_const}' na barra lateral.")
+                        "Texto": [f"{formatar_numero(nao_edificados)} ({pct_nao_edif:.1f}%)", f"{formatar_numero(edificados)} ({pct_edif:.1f}%)"]})
+                        fig_edif = px.bar(df_edif, x="Quantidade", y="Tipo", orientation="h", text="Texto")
+                        fig_edif.update_traces(marker_color="#1f5aa6", textposition="outside", width=0.45, cliponaxis=False)
+                        fig_edif.update_yaxes(type="category", title="")
+                        fig_edif.update_xaxes(visible=False)
+                        fig_edif.update_layout(height=180, bargap=0.4, margin=dict(l=10, r=95, t=10, b=10), plot_bgcolor="rgba(0,0,0,0)")
+                        st.plotly_chart(fig_edif, use_container_width=True)
+                    else:
+                        st.warning(f"Mapeie a coluna '{col_tipologia}' ou '{col_area_const}' na barra lateral.")
                 else:
                 st.info("Nenhum registro encontrado para os filtros selecionados.")               
         # ========================================================
@@ -558,3 +546,4 @@ else:
                     st.text_input("Senha Proxy:", type="password")
                     st.text_area("Query SQL de Extração:", value="SELECT * FROM sua_tabela_imobiliaria LIMIT 100;")
                     st.button("⚡ Testar Conexão SQL (Ativaremos na Fase 4)", disabled=True)
+
