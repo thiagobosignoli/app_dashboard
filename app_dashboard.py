@@ -314,9 +314,7 @@ else:
                 if col_ano in df_base_filtro.columns and f"{col_iptu_moeda}_NUM" in df_base_filtro.columns:
                     df_anual = df_base_filtro.groupby(col_ano, as_index=False)[f"{col_iptu_moeda}_NUM"].sum().sort_values(col_ano)
                     cores = ["#1f5aa6" if str(a) == str(ano_selecionado) else "#b0b8c4" for a in df_anual[col_ano]]
-                    fig_anual = go.Figure(data=[go.Bar(x=df_anual[col_ano], y=df_anual[f"{col_iptu_moeda}_NUM"], marker_color=cores,
-                    text=[formatar_moeda_curta(v) for v in df_anual[f"{col_iptu_moeda}_NUM"]],
-                    textposition="outside", width=0.35, cliponaxis=False)])
+                    fig_anual = go.Figure(data=[go.Bar(x=df_anual[col_ano], y=df_anual[f"{col_iptu_moeda}_NUM"], marker_color=cores, text=[formatar_moeda_curta(v) for v in df_anual[f"{col_iptu_moeda}_NUM"]],textposition="outside", width=0.35, cliponaxis=False)])
                     fig_anual.update_xaxes(type="category")
                     fig_anual.update_yaxes(showgrid=True, gridcolor="#f0f2f6", title="IPTU (R$)")
                     fig_anual.update_layout(height=240, bargap=0.45, margin=dict(l=10, r=10, t=25, b=10), plot_bgcolor="rgba(0,0,0,0)")
