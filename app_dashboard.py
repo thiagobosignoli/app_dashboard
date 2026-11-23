@@ -315,7 +315,7 @@ else:
                 st.info(f"Mapeie as colunas '{col_tipo_lanc}' e '{col_ano}' na barra lateral para visualizar este gráfico.")
 
 
-        with g_dir:
+                with g_dir:
             st.markdown("**Comparação anual do lançamento (IPTU R$)**")
             if col_ano in df_base_filtro.columns and f"{col_iptu_moeda}_NUM" in df_base_filtro.columns:
                 df_anual = df_base_filtro.groupby(col_ano, as_index=False)[f"{col_iptu_moeda}_NUM"].sum().sort_values(col_ano)
@@ -326,11 +326,14 @@ else:
                     y=df_anual[f"{col_iptu_moeda}_NUM"],
                     marker_color=cores,
                     text=[formatar_moeda_curta(v) for v in df_anual[f"{col_iptu_moeda}_NUM"]],
-                    textposition="outside"
+                    textposition="outside",
+                    width=0.35,
+                    cliponaxis=False
                 )])
-                fig_anual.update_layout(height=240, margin=dict(l=10, r=10, t=20, b=10), yaxis_title="IPTU (R$)")
+                fig_anual.update_xaxes(type="category")
+                fig_anual.update_yaxes(showgrid=True, gridcolor="#f0f2f6", title="IPTU (R$)")
+                fig_anual.update_layout(height=240, bargap=0.45, margin=dict(l=10, r=10, t=25, b=10), plot_bgcolor="rgba(0,0,0,0)")
                 st.plotly_chart(fig_anual, use_container_width=True)
-
             st.markdown("**Imóveis edificados e não edificados**")
             if f"{col_area_const}_NUM" in df_atual.columns and insc_atual > 0:
                 edificados = int((df_atual[f"{col_area_const}_NUM"] > 0).sum())
