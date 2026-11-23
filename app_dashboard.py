@@ -319,19 +319,28 @@ else:
                     fig_anual.update_yaxes(showgrid=True, gridcolor="#f0f2f6", title="IPTU (R$)")
                     fig_anual.update_layout(height=240, bargap=0.45, margin=dict(l=10, r=10, t=25, b=10), plot_bgcolor="rgba(0,0,0,0)")
                     st.plotly_chart(fig_anual, use_container_width=True)
-                    st.markdown("**Imóveis edificados e não edificados**")
-                    if f"{col_area_const}_NUM" in df_atual.columns and insc_atual > 0:
-                        edificados = int((df_atual[f"{col_area_const}_NUM"] > 0).sum())
-                        nao_edificados = insc_atual - edificados
-                        pct_edif = (edificados / insc_atual) * 100
-                        pct_nao_edif = (nao_edificados / insc_atual) * 100
-                        df_edif = pd.DataFrame({"Tipo": ["Não edificados", "Edificados"], "Quantidade": [nao_edificados, edificados], "Texto": [f"{formatar_numero(nao_edificados)} ({pct_nao_edif:.1f}%)", f"{formatar_numero(edificados)} ({pct_edif:.1f}%)"]})
-                        fig_edif = px.bar(df_edif, x="Quantidade", y="Tipo", orientation="h", text="Texto")
-                        fig_edif.update_traces(marker_color="#1f5aa6", textposition="outside", width=0.45, cliponaxis=False)
-                        fig_edif.update_yaxes(type="category", title="")
-                        fig_edif.update_xaxes(visible=False)
-                        fig_edif.update_layout(height=180, bargap=0.4, margin=dict(l=10, r=95, t=10, b=10), plot_bgcolor="rgba(0,0,0,0)")
-                        st.plotly_chart(fig_edif, use_container_width=True)
+                st.markdown("**Imóveis edificados e não edificados**")
+                if insc_atual > 0 and (col_tipologia in df_atual.columns or f"{col_area_const}_NUM" in df_atual.columns):
+                    if col_tipologia in df_atual.columns:
+                        # Classifica como Não Edificado se contiver TERRENO, TERRITORIAL ou GLEBA (ignorando maiúsculas/minúsculas)
+                        finalidade_str = df_atual[col_tipologia].astype(str).str.upper().str.strip()
+                        eh_territorial = finalidade_str.str.contains("TERRENO|TERRITORIAL|GLEBA", regex=True, na=False)               
+                    nao_edificados = int(eh_territorial.sum())
+                    edificados = insc_atual - nao_edificados
+                else:
+                    # Fallback automático caso a coluna DES_FINALIDADE não esteja no arquivo
+                    edificados = int((df_atual[f"{col_area_const}_NUM"] > 0).sum())
+                    nao_edificados = insc_atual - edificados
+                    pct_edif = (edificados / insc_atual) * 100
+                    pct_nao_edif = (nao_edificados / insc_atual) * 100
+                    df_edif = pd.DataFrame({"Tipo": ["Não edificados (Terrenos)", "Edificados"], "Quantidade": [nao_edificados, edificados], "Texto": [f"{formatar_numero(nao_edificados)} ({pct_nao_edif:.1f}%)", f"{formatar_numero(edificados)} ({pct_edif:.1f}%)"]}) 
+                    fig_edif = px.bar(df_edif, x="Quantidade", y="Tipo", orientation="h", text="Texto")
+                    fig_edif.update_traces(marker_color="#1f5aa6", textposition="outside", width=0.45, cliponaxis=False)
+                    fig_edif.update_yaxes(type="category", title="")
+                    fig_edif.update_xaxes(visible=False)
+                    fig_edif.update_layout(height=180, bargap=0.4, margin=dict(l=10, r=95, t=10, b=10), plot_bgcolor="rgba(0,0,0,0)")
+                    st.plotly_chart(fig_edif, use_container_width=True)
+                    
         # ========================================================
         # NOVO GRÁFICO: EVOLUÇÃO DA ÁREA CONSTRUÍDA NO TEMPO
         # ========================================================
