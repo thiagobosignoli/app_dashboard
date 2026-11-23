@@ -260,9 +260,7 @@ else:
                 df_graf_tempo[col_tipo_lanc] = np.where(
                     df_graf_tempo[col_tipo_lanc].isin(top_tipos),
                     df_graf_tempo[col_tipo_lanc],
-                    "Outros Tipos"
-                )
-
+                    "Outros Tipos")
                 if metrica_tipo == "Valor Lançado IPTU (R$)" and f"{col_iptu_moeda}_NUM" in df_graf_tempo.columns:
                     df_agrup = df_graf_tempo.groupby([col_ano, col_tipo_lanc], as_index=False)[f"{col_iptu_moeda}_NUM"].sum()
                     col_y_val = f"{col_iptu_moeda}_NUM"
@@ -271,9 +269,7 @@ else:
                     df_agrup = df_graf_tempo.groupby([col_ano, col_tipo_lanc], as_index=False)[col_chave].count()
                     col_y_val = col_chave
                     label_y = "Quantidade de Inscrições"
-
-                df_agrup = df_agrup.sort_values(col_ano)
-
+                    df_agrup = df_agrup.sort_values(col_ano)
                 # Criação da variável fig_tempo_tipo
                 fig_tempo_tipo = px.bar(
                     df_agrup,
@@ -316,41 +312,28 @@ else:
             with g_dir:
                 st.markdown("**Comparação anual do lançamento (IPTU R$)**")
                 if col_ano in df_base_filtro.columns and f"{col_iptu_moeda}_NUM" in df_base_filtro.columns:
-                df_anual = df_base_filtro.groupby(col_ano, as_index=False)[f"{col_iptu_moeda}_NUM"].sum().sort_values(col_ano)
-                cores = ["#1f5aa6" if str(a) == str(ano_selecionado) else "#b0b8c4" for a in df_anual[col_ano]]
-
-                fig_anual = go.Figure(data=[go.Bar(
-                    x=df_anual[col_ano],
-                    y=df_anual[f"{col_iptu_moeda}_NUM"],
-                    marker_color=cores,
+                    df_anual = df_base_filtro.groupby(col_ano, as_index=False)[f"{col_iptu_moeda}_NUM"].sum().sort_values(col_ano)
+                    cores = ["#1f5aa6" if str(a) == str(ano_selecionado) else "#b0b8c4" for a in df_anual[col_ano]]
+                    fig_anual = go.Figure(data=[go.Bar(x=df_anual[col_ano], y=df_anual[f"{col_iptu_moeda}_NUM"], marker_color=cores,
                     text=[formatar_moeda_curta(v) for v in df_anual[f"{col_iptu_moeda}_NUM"]],
-                    textposition="outside",
-                    width=0.35,
-                    cliponaxis=False
-                )])
-                fig_anual.update_xaxes(type="category")
-                fig_anual.update_yaxes(showgrid=True, gridcolor="#f0f2f6", title="IPTU (R$)")
-                fig_anual.update_layout(height=240, bargap=0.45, margin=dict(l=10, r=10, t=25, b=10), plot_bgcolor="rgba(0,0,0,0)")
-                st.plotly_chart(fig_anual, use_container_width=True)
-            st.markdown("**Imóveis edificados e não edificados**")
-            if f"{col_area_const}_NUM" in df_atual.columns and insc_atual > 0:
-                edificados = int((df_atual[f"{col_area_const}_NUM"] > 0).sum())
-                nao_edificados = insc_atual - edificados
-                pct_edif = (edificados / insc_atual) * 100
-                pct_nao_edif = (nao_edificados / insc_atual) * 100
-
-                df_edif = pd.DataFrame({
-                    "Tipo": ["Não edificados (territorial)", "Edificados"],
-                    "Quantidade": [nao_edificados, edificados],
-                    "Texto": [f"{formatar_numero(nao_edificados)} ({pct_nao_edif:.1f}%)", f"{formatar_numero(edificados)} ({pct_edif:.1f}%)"]
-                })
-
-                fig_edif = px.bar(df_edif, x="Quantidade", y="Tipo", orientation="h", text="Texto")
-                fig_edif.update_traces(marker_color="#1f77b4", textposition="outside")
-                fig_edif.update_layout(height=180, margin=dict(l=10, r=60, t=10, b=10), xaxis_visible=False, yaxis_title="")
-                st.plotly_chart(fig_edif, use_container_width=True)
-
-        # Resumo por Tipo de Lançamento (se houver a coluna na base)
+                    textposition="outside", width=0.35, cliponaxis=False)])
+                    fig_anual.update_xaxes(type="category")
+                    fig_anual.update_yaxes(showgrid=True, gridcolor="#f0f2f6", title="IPTU (R$)")
+                    fig_anual.update_layout(height=240, bargap=0.45, margin=dict(l=10, r=10, t=25, b=10), plot_bgcolor="rgba(0,0,0,0)")
+                    st.plotly_chart(fig_anual, use_container_width=True)
+                    st.markdown("**Imóveis edificados e não edificados**")
+                    if f"{col_area_const}_NUM" in df_atual.columns and insc_atual > 0:
+                        edificados = int((df_atual[f"{col_area_const}_NUM"] > 0).sum())
+                        nao_edificados = insc_atual - edificados
+                        pct_edif = (edificados / insc_atual) * 100
+                        pct_nao_edif = (nao_edificados / insc_atual) * 100
+                        df_edif = pd.DataFrame({"Tipo": ["Não edificados (territorial)", "Edificados"], "Quantidade": [nao_edificados, edificados],
+                        "Texto": [f"{formatar_numero(nao_edificados)} ({pct_nao_edif:.1f}%)", f"{formatar_numero(edificados)} ({pct_edif:.1f}%)"]})
+                        fig_edif = px.bar(df_edif, x="Quantidade", y="Tipo", orientation="h", text="Texto")
+                        fig_edif.update_traces(marker_color="#1f77b4", textposition="outside")
+                        fig_edif.update_layout(height=180, margin=dict(l=10, r=60, t=10, b=10), xaxis_visible=False, yaxis_title="")
+                        st.plotly_chart(fig_edif, use_container_width=True)
+            # Resumo por Tipo de Lançamento (se houver a coluna na base)
         if col_tipo_lanc in df_atual.columns:
             st.divider()
             st.markdown("**Resumo por Tipo de Lançamento**")
