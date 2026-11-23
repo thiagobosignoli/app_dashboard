@@ -136,7 +136,7 @@ else:
     df_raw = pd.read_parquet(caminho_base_oficial)
     df = preparar_dataframe(df_raw)
 
-    data_ultima_carga = df["DATA_CARGA"].iloc if "DATA_CARGA" in df.columns else "Desconhecida"
+    data_ultima_carga = df["DATA_CARGA"].iloc[0] if "DATA_CARGA" in df.columns else "Desconhecida"
     st.sidebar.success(f"✅ Base Conectada\n\n**Registros:** {len(df):,}\n\n**Última Carga:** {data_ultima_carga}")
 
     aba_dash, aba_explorar, aba_atualizar = st.tabs([
@@ -547,5 +547,6 @@ else:
                     st.text_input("Senha Proxy:", type="password")
                     st.text_area("Query SQL de Extração:", value="SELECT * FROM sua_tabela_imobiliaria LIMIT 100;")
                     st.button("⚡ Testar Conexão SQL (Ativaremos na Fase 4)", disabled=True)
+
 
 
