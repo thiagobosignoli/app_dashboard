@@ -314,8 +314,8 @@ else:
             else:
                 st.info(f"Mapeie as colunas '{col_tipo_lanc}' e '{col_ano}' na barra lateral para visualizar este gráfico.")
             with g_dir:
-            st.markdown("**Comparação anual do lançamento (IPTU R$)**")
-            if col_ano in df_base_filtro.columns and f"{col_iptu_moeda}_NUM" in df_base_filtro.columns:
+                st.markdown("**Comparação anual do lançamento (IPTU R$)**")
+                if col_ano in df_base_filtro.columns and f"{col_iptu_moeda}_NUM" in df_base_filtro.columns:
                 df_anual = df_base_filtro.groupby(col_ano, as_index=False)[f"{col_iptu_moeda}_NUM"].sum().sort_values(col_ano)
                 cores = ["#1f5aa6" if str(a) == str(ano_selecionado) else "#b0b8c4" for a in df_anual[col_ano]]
 
