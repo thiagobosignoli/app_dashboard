@@ -346,7 +346,7 @@ else:
                             df_tab_tipo = df_atual.groupby(col_tipo_lanc, as_index=False).agg(agg_tipo)
                             df_tab_tipo = df_tab_tipo.rename(columns={col_chave: "Inscrições", f"{col_iptu_moeda}_NUM": "IPTU Lançado (R$)", f"{col_iptu_ufm}_NUM": "IPTU (UFMs)", f"{col_al}_NUM": "Autos de Lançamento (R$)"
             }).sort_values("Inscrições", ascending=False)
-            st.dataframe(df_tab_tipo, use_container_width=True, hide_index=True)
+                            st.dataframe(df_tab_tipo, use_container_width=True, hide_index=True)
             # Tabela Consolidada Inferior (Finalidade + Uso)
         st.divider()
         cols_grupo_tab = [c for c in [col_tipologia, col_uso] if c in df_atual.columns]
